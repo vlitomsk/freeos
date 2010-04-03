@@ -6,7 +6,7 @@
 LIB		= lib
 SRC		= src
 BIN		= bin
-LARG	= ../cdrom/root/kernel $(LIB)/boot.o $(LIB)/mboot.o $(LIB)/vlib.o
+LARG	= ../cdrom/root/kernel $(LIB)/boot.o $(LIB)/mboot.o $(LIB)/vlib.o $(LIB)/utils.o
 
 SINC	= src/sys/include
 SLIB	= src/sys/lib
@@ -27,8 +27,11 @@ mboot:
 	$(SC) $(LIB)/mboot.o	$(SLIB)/multiboot/multiboot.S
 vlib: 
 	$(CC) $(LIB)/vlib.o		$(SLIB)/screen/simple_io.c
+utils: 
+	$(CC) $(LIB)/utils.o	$(SLIB)/utils.c
 
-build: boot mboot vlib
+build: boot mboot vlib utils
+
 	$(LK) $(LARG)
 
 clean:
