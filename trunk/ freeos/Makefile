@@ -35,5 +35,5 @@ build: boot mboot vlib utils
 	$(LK) $(LARG)
 
 clean:
-	rm $(LIB)/*
-	rm $(BIN)/*
+	rm $(LIB)/* -rf
+	rm $(BIN)/* -rf

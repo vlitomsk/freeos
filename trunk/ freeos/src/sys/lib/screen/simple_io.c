@@ -12,17 +12,11 @@ void init_tty() {
   tty_attribute = 7;
 }
 
-<<<<<<< .mine
 //Смена текущего атрибута символа
 void textcolor(unsigned int c) {
-=======
-//Смена текущего атрибута символа
-void textcolor(unsigned char c) {
->>>>>>> .r7
   tty_attribute = c;
 }
 
-<<<<<<< .mine
 // like pascal :)
 extern int gotoxy(unsigned int x, unsigned int y) {
 	if (x*y > VIDEO_HEIGHT*VIDEO_WIDTH) return 1;
@@ -30,27 +24,8 @@ extern int gotoxy(unsigned int x, unsigned int y) {
 	tty_cursor = y * VIDEO_WIDTH - VIDEO_WIDTH + x - 1;
 
 	return 0;	
-=======
-// like pascal :)
-extern int gotoxy(unsigned int x, unsigned int y) {
-	if (x*y > VIDEO_HEIGHT*VIDEO_WIDTH) return 1;
-	if ((x >= VIDEO_WIDTH) || (y >= VIDEO_HEIGHT)) return 1;
-	tty_cursor = y * VIDEO_WIDTH / 10 - VIDEO_WIDTH / 10 + x - 1;
-
-	return 0;	
 }
 
-//Очистка экрана
-void clear(void) { 
-	int i;
-  for (i ^= i; i < VIDEO_HEIGHT*VIDEO_WIDTH; ++i)
-    *(video + i*2) = ' ';    
-  
-  tty_cursor ^= tty_cursor;
->>>>>>> .r7
-}
-
-<<<<<<< .mine
 //Очистка экрана
 void clear(unsigned int c) { 
 	int i;
@@ -63,15 +38,8 @@ void clear(unsigned int c) {
   tty_cursor ^= tty_cursor;
 }
 
-=======
->>>>>>> .r7
-<<<<<<< .mine
 //Вывод одного символа в режиме телетапа
 void putchar(char c) {  
-=======
-//Вывод одного символа в режиме телетайпа
-void putchar(char c) {  
->>>>>>> .r7
   int i;
   switch (c) {
 
@@ -95,11 +63,44 @@ void putchar(char c) {
 }
 
 //Вывод строки, заканчивающейся нуль-символом
-void puts(const char *s)
+void put_str(const char *s)
 {
   while(*s) {
     putchar(*s);
     s++;
   }
+}
+
+void put_int(int a) {
+	if (a == 0) return "0\0";
+		
+	//char* mystr = (char*)malloc(sizeof(char) * 100);
+	char mystr[100];
+	int pos = 0;
+ 	if (a < 0) {
+		mystr[pos++] = '-';
+		a = -a;
+	}
+											
+	//int* stack = (int*)malloc(sizeof(int) * 100);
+	int stack[100];
+	int stacklen = 0;
+	for (;a != 0;) {
+		int tmp = 0;
+		tmp = a % 10;
+		a -= tmp;
+		a /= 10;
+																	
+		stack[stacklen++] = tmp;	
+	}
+																																	
+	for (a = stacklen-1; a >= 0; a--) 
+			mystr[pos++] = (char)(stack[a]+48); 
+
+	//	free(stack);
+																																					
+	mystr[pos] = '\0';
+
+	put_str(mystr);
 }
 
