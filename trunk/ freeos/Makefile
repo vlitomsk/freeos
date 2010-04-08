@@ -5,8 +5,8 @@
 #		реорганизация
 LIB		= lib
 SRC		= src
-BIN		= bin
-LARG	= ../cdrom/root/kernel $(LIB)/boot.o $(LIB)/mboot.o $(LIB)/vlib1.o $(LIB)/vlib2.o $(LIB)/utils.o
+BIN		= ../cdrom/root/kernel
+LARG	= $(BIN) $(LIB)/boot.o $(LIB)/mboot.o $(LIB)/vlib1.o $(LIB)/vlib2.o $(LIB)/utils.o
 
 SINC	= src/sys/include
 SLIB	= src/sys/lib
