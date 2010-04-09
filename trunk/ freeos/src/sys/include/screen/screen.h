@@ -22,5 +22,6 @@ void setscreen(__SCREEN *s);
 void putchar(char c);
 void put_str(const char *s);
 void put_int(int a);
+int put_array(int x, int y, int lx, int ly, char *sym[], int *color[]);
 
 #endif

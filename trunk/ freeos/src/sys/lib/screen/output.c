@@ -71,3 +71,15 @@ void put_int(int a) {
 	put_str(mystr);
 }
 
+//вывод массива символов sym  с соответствующим цветом символа и фона из color
+int put_array(int x, int y, int lx, int ly, char *sym[], int *color[]){
+    if(x + lx > VIDEO_WIDTH) return 0;
+    int i,j;
+    for(i = 0; i < lx; ++i)
+        for(j = 0; j < ly; ++j){
+            gotoxy(i+x,j+y);
+            textcolor(color[j][i]);
+            putchar(sym[j][i]);
+        }
+    return 1;
+}
