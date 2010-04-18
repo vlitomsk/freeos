@@ -5,8 +5,8 @@
 #		реорганизация
 LIB		= lib
 SRC		= src
-BIN		= bin
-LARG	= ../cdrom/root/kernel $(LIB)/boot.o $(LIB)/mboot.o $(LIB)/vlib.o $(LIB)/utils.o $(LIB)/vmm_manager.o $(LIB)/paging.o
+BIN		= ../cdrom/root/kernel
+LARG	= $(BIN) $(LIB)/boot.o $(LIB)/mboot.o $(LIB)/vlib.o $(LIB)/utils.o $(LIB)/vmm_manager.o $(LIB)/paging.o
 
 SINC	= src/sys/include
 SLIB	= src/sys/lib
@@ -22,11 +22,13 @@ LK		= ld  $(LFLAGS) -o
 all: build
 
 boot:
-	$(CC) $(LIB)/boot.o		$(SRC)/boot.c -masm=intel
+	$(CC) $(LIB)/boot.o		$(SRC)/boot.c 
 mboot:
 	$(SC) $(LIB)/mboot.o	$(SLIB)/multiboot/multiboot.S
 vlib: 
-	$(CC) $(LIB)/vlib.o		$(SLIB)/screen/simple_io.c
+	$(CC) $(LIB)/vlib1.o            $(SLIB)/screen/output.c 
+    $(CC) $(LIB)/vlib2.o            $(SLIB)/screen/screen_properties.c 
+    
 utils: 
 	$(CC) $(LIB)/utils.o	$(SLIB)/utils.c
 
