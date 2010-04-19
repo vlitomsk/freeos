@@ -27,7 +27,7 @@ mboot:
 	$(SC) $(LIB)/mboot.o	$(SLIB)/multiboot/multiboot.S
 vlib: 
 	$(CC) $(LIB)/vlib1.o            $(SLIB)/screen/output.c 
-    $(CC) $(LIB)/vlib2.o            $(SLIB)/screen/screen_properties.c 
+	$(CC) $(LIB)/vlib2.o            $(SLIB)/screen/screen_properties.c 
     
 utils: 
 	$(CC) $(LIB)/utils.o	$(SLIB)/utils.c
