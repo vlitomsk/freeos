@@ -12,7 +12,7 @@ SINC	= src/sys/include
 SLIB	= src/sys/lib
 
 CFLAGS	= -c -I$(SINC)
-LFLAGS	= -m elf_i386 -Ttext 0x200000
+LFLAGS	= -T linker.ld
 
 CC		= gcc $(CFLAGS) -fno-stack-protector -o
 SC		= gcc $(CFLAGS) -o
