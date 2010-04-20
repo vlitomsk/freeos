@@ -8,8 +8,7 @@ SRC		= src
 BIN		= ../cdrom/root/kernel
 LARG	= $(BIN) $(LIB)/boot.o $(LIB)/mboot.o $(LIB)/vlib.o $(LIB)/utils.o $(LIB)/vmm_manager.o $(LIB)/paging.o
 
-SINC	= src/sys/include
-TINK	= src/test/include
+SINC	= src/test/include
 SLIB	= src/sys/lib
 
 CFLAGS	= -c -I$(SINC)
