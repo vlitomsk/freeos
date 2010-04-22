@@ -6,11 +6,14 @@
 LIB		= lib
 SRC		= src
 BIN		= ../cdrom/root/kernel
-LARG	= $(BIN) $(LIB)/boot.o $(LIB)/mboot.o $(LIB)/vlib.o $(LIB)/utils.o $(LIB)/vmm_manager.o $(LIB)/paging.o
+LARG	= $(BIN) $(LIB)/boot.o $(LIB)/mboot.o $(LIB)/vlib1.o $(LIB)/vlib2.o $(LIB)/utils.o $(LIB)/vmm_manager.o $(LIB)/paging.o $(LIB)/shared/*.o
 
 SINC	= src/sys/include
 TINK	= src/test/include
 SLIB	= src/sys/lib
+
+SLINC	= src/shared/include
+SLLIB	= src/shared/lib
 
 CFLAGS	= -c -I$(SINC)
 LFLAGS	= -T linker.ld
@@ -37,8 +40,12 @@ vmm_man:
 	$(CC) $(LIB)/vmm_manager.o $(SLIB)/vmm_manager/memory_manager.c
 	$(CC) $(LIB)/paging.o $(SLIB)/vmm_manager/paging.c
 
-build: boot mboot vlib utils vmm_man
+shared:
+	$(CC) $(LIB)/shared/math.o $(SLLIB)/math.c
+
+build: boot mboot vlib utils vmm_man shared
 	$(LK) $(LARG)
 clean:
-	rm $(LIB)/* -rf
-	rm $(BIN)/* -rf
+	rm $(LIB)/* -rf 
+	rm $(BIN)/* -fr
+	mkdir $(LIB)/shared

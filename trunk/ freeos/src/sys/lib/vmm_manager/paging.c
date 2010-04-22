@@ -1,5 +1,4 @@
 #include <vmm_manager/paging.h>
-#include <screen/simple_io.h>
 
 int MAGIC_NUMBER;
 
