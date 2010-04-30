@@ -6,7 +6,7 @@
 LIB		= ../lib
 SRC		= ./src
 BIN		= ../build/cdrom/root/kernel
-LARG	= $(BIN) $(LIB)/boot.o $(LIB)/mboot.o $(LIB)/vlib1.o $(LIB)/vlib2.o $(LIB)/utils.o $(LIB)/vmm_manager.o $(LIB)/paging.o $(LIB)/shared/*.o
+LARG	= $(BIN) $(LIB)/boot.o $(LIB)/mboot.o $(LIB)/vlib1.o $(LIB)/vlib2.o $(LIB)/utils.o $(LIB)/vmm_manager.o $(LIB)/paging.o $(LIB)/shared/*.o $(LIB)/start.o
 
 SINC	= $(SRC)/sys/include
 SLIB	= $(SRC)/sys/lib
@@ -34,7 +34,7 @@ vlib:
     
 utils: 
 	$(CC) $(LIB)/utils.o	$(SLIB)/utils.c
-
+	$(CC) $(LIB)/start.o	$(SLIB)/starter/start.c
 vmm_man:
 	$(CC) $(LIB)/vmm_manager.o $(SLIB)/vmm_manager/memory_manager.c
 	$(CC) $(LIB)/paging.o $(SLIB)/vmm_manager/paging.c
