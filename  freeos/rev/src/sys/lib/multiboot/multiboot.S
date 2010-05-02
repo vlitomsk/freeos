@@ -1,64 +1,60 @@
-   
-     #define ASM     1
-     #include <multiboot/multiboot.h>
-     
-             .text
-     
-             .globl  start, _start
-     start:
-     _start:
-             jmp     multiboot_entry
-     
-             /* Align 32 bits boundary. */
-             .align  4
-     
-             /* Multiboot header. */
-     multiboot_header:
-             /* magic */
-             .long   MULTIBOOT_HEADER_MAGIC
-             /* flags */
-             .long   MULTIBOOT_HEADER_FLAGS
-             /* checksum */
-             .long   -(MULTIBOOT_HEADER_MAGIC + MULTIBOOT_HEADER_FLAGS)
-     #ifndef __ELF__
-             /* header_addr */
-             .long   multiboot_header
-             /* load_addr */
-             .long   _start
-             /* load_end_addr */
-             .long   _edata
-             /* bss_end_addr */
-             .long   _end
-             /* entry_addr */
-             .long   multiboot_entry
-     #endif /* ! __ELF__ */
-     
-     multiboot_entry:
-             /* Initialize the stack pointer. */
-             movl    $(stack + STACK_SIZE), %esp
-     
-             /* Reset EFLAGS. */
-             pushl   $0
-             popf
-     
-             /* Push the pointer to the Multiboot information structure. */
-             pushl   %ebx
-             /* Push the magic value. */
-             pushl   %eax
-     
-             /* Now enter the C main function... */
-             call    EXT_C(kernel_main)
-     
-             /* Halt. */
-             pushl   $halt_message
-             /*call    EXT_C(printf)*/
-     
-     loop:   hlt
-             jmp     loop
-     
-     halt_message:
-             .asciz  "Halted."
-     
-             /* Our stack area. */
-             .comm   stack, STACK_SIZE
+[BITS 32]
+global start
+start:
+    mov esp, _sys_stack    
+    jmp stublet
+
+ALIGN 4
+mboot:
  
+    MULTIBOOT_PAGE_ALIGN	equ 1<<0
+    MULTIBOOT_MEMORY_INFO	equ 1<<1
+    MULTIBOOT_AOUT_KLUDGE	equ 1<<16
+    MULTIBOOT_HEADER_MAGIC	equ 0x1BADB002
+    MULTIBOOT_HEADER_FLAGS	equ MULTIBOOT_PAGE_ALIGN | MULTIBOOT_MEMORY_INFO | MULTIBOOT_AOUT_KLUDGE
+    MULTIBOOT_CHECKSUM	equ -(MULTIBOOT_HEADER_MAGIC + MULTIBOOT_HEADER_FLAGS)
+    EXTERN code, bss, end
+
+    dd MULTIBOOT_HEADER_MAGIC
+    dd MULTIBOOT_HEADER_FLAGS
+    dd MULTIBOOT_CHECKSUM
+    
+    dd mboot
+    dd code
+    dd bss
+    dd end
+    dd start
+
+stublet:
+    extern main
+    call   main	
+	
+    jmp $
+
+
+SECTION .bss
+    resb 8192               
+
+_sys_stack:
+
+global _gdt_flush    
+extern _gp            
+_gdt_flush:
+    lgdt [_gp]       
+    mov ax, 0x10      
+    mov ds, ax
+    mov es, ax
+    mov fs, ax
+    mov gs, ax
+    mov ss, ax
+    jmp 0x08:flush2  
+flush2:
+    ret          
+
+
+global _idt_load
+extern _idtp
+_idt_load:
+    lidt [_idtp]
+    ret
+		
