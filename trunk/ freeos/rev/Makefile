@@ -6,7 +6,7 @@
 LIB		= ../lib
 SRC		= ./src
 BIN		= ../build/cdrom/root/kernel
-LARG	= $(BIN) $(LIB)/boot.o $(LIB)/mboot.o $(LIB)/vlib1.o $(LIB)/vlib2.o $(LIB)/utils.o $(LIB)/vmm_manager.o $(LIB)/paging.o $(LIB)/shared/*.o $(LIB)/start.o
+LARG	= $(BIN) $(LIB)/boot.o $(LIB)/mboot.o $(LIB)/vlib1.o $(LIB)/vlib2.o $(LIB)/utils.o $(LIB)/vmm_manager.o $(LIB)/paging.o $(LIB)/shared/*.o $(LIB)/start.o $(LIB)/gdt.o #(LIB)/idt.o
 
 SINC	= $(SRC)/sys/include
 SLIB	= $(SRC)/sys/lib
@@ -18,8 +18,9 @@ CFLAGS	= -c -I$(SINC)
 LFLAGS	= -T linker.ld
 
 CC		= gcc $(CFLAGS) -fno-stack-protector -o
-SC		= gcc $(CFLAGS) -o
+SC		= nasm -f aout -o
 LK		= ld  $(LFLAGS) -o 
+
 # targets :
 
 all: build
@@ -41,6 +42,9 @@ vmm_man:
 
 shared:
 	$(CC) $(LIB)/shared/math.o $(SLLIB)/math.c
-
-build: boot mboot vlib utils vmm_man shared
+tables:
+	$(CC) $(LIB)/gdt.o		$(SLIB)/tables/gdt.c
+#	$(CC) $(LIB)/idt.o		$(SLIB)/tables/idt.c
+	
+build: boot mboot vlib utils vmm_man shared tables
 	$(LK) $(LARG) 
