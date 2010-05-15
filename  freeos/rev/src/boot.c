@@ -4,10 +4,7 @@
 
 void main()
 {
-	__SCREEN s;
-	setscreen(&s);
-  init_tty();
-  
+  init_video();
   out_logo();
 }
 
