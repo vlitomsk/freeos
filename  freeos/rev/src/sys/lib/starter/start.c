@@ -1,13 +1,14 @@
 #include<starter/start.h>
 void out_logo()
 {
-	clear(0xFF);
 	int x = new_tty();
 	set_tty(x);
 	clear(0x2F);
+	textcolor(0x70);
 	gotoxy(25,15);
 	put_str("this is second display ^_^");
 	set_tty(0);
+	clear(0xFF);
 	int i = 10;
 	int c = 0;
 	while(1){
@@ -22,9 +23,10 @@ void out_logo()
 		    if(c){
 		        clear(0x2F);
 	            gotoxy(25,15);
+	            textcolor(0x70);
 	            put_str("this is second display ^_^");
 		    } else
-		        clear(0xFF); 
+		        clear(0xFF);
 	    }
 	}
 }

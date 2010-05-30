@@ -4,8 +4,6 @@
 #include <config/video.h>
 #include <vmm_manager/memory_manager.h>
 
-#define SCREENS 1000
-
 char* video; // указатель на видеобуфер
 
 struct tty{
@@ -17,11 +15,12 @@ struct tty{
 typedef struct tty __SCREEN;
 
 int numscr;
-__SCREEN screens[SCREENS];
+__SCREEN **screens;
 int count;
 
 void init_video(void);
 int new_tty(void);
+void del_tty(int);
 void textcolor(unsigned int);
 int gotoxy(unsigned int, unsigned int);
 void clear(unsigned int);

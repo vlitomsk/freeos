@@ -8,23 +8,23 @@ void put_char(char c) {
     int i;
     switch (c) {
     case '\n': //Если это символ новой строки
-        screens[numscr].tty_cursor=screens[numscr].tty_cursor+VIDEO_WIDTH-screens[numscr].tty_cursor%VIDEO_WIDTH;  					  
+        screens[numscr]->tty_cursor=screens[numscr]->tty_cursor+VIDEO_WIDTH-screens[numscr]->tty_cursor%VIDEO_WIDTH;  					  
         break;
     default:
-        *(video + screens[numscr].tty_cursor*2) = c;
-        *(video + 2*(screens[numscr].tty_cursor++)+1) = screens[numscr].tty_attribute;
-        *(screens[numscr].scr + screens[numscr].tty_cursor*2) = c;
-        *(screens[numscr].scr + 2*(screens[numscr].tty_cursor)+1) = screens[numscr].tty_attribute;					    					    
+        *(video + screens[numscr]->tty_cursor*2) = c;
+        *(video + 2*(screens[numscr]->tty_cursor++)+1) = screens[numscr]->tty_attribute;
+        *(screens[numscr]->scr + screens[numscr]->tty_cursor*2) = c;
+        *(screens[numscr]->scr + 2*(screens[numscr]->tty_cursor)+1) = screens[numscr]->tty_attribute;					    					    
         break;
     }
     
     //Если курсор вышел за границу экрана, сдвинем экран вверх на одну строку
-    if(screens[numscr].tty_cursor>VIDEO_WIDTH*VIDEO_HEIGHT) {
+    if(screens[numscr]->tty_cursor>VIDEO_WIDTH*VIDEO_HEIGHT) {
         for(i = VIDEO_WIDTH*2; i <= VIDEO_WIDTH*VIDEO_HEIGHT*2+VIDEO_WIDTH*2; ++i){
             *(video+i-VIDEO_WIDTH*2)=*(video+i);
-            *(screens[numscr].scr+i-VIDEO_WIDTH*2)=*(screens[numscr].scr+i);
+            *(screens[numscr]->scr+i-VIDEO_WIDTH*2)=*(screens[numscr]->scr+i);
         }
-        screens[numscr].tty_cursor-=VIDEO_WIDTH;
+        screens[numscr]->tty_cursor-=VIDEO_WIDTH;
     }
 }
 
@@ -84,3 +84,15 @@ int put_array(int x, int y, int lx, int ly, char *sym[], int *color[]){
         }
     return 1;
 }
+/*
+Он носил красную гимнастерку,
+Синий зеленый капюшон,
+Он посмотрел очень хорошее.
+У него большая авантюра
+Среди травы
+Свежий воздух, наконец.
+Бары, рестораны, выжидал.
+И тогда один день - ура!
+Еще один способ для гномов сказать
+Урааааааааааа!
+*/
