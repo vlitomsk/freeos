@@ -1,0 +1,10 @@
+#labels freeos,test
+Пробная страница
+
+= Introduction =
+
+просто пробная страница
+
+= Details =
+
+страница
