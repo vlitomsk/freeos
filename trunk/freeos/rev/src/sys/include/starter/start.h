@@ -1,2 +1,0 @@
-void out_logo();
-
