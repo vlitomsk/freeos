@@ -1,4 +1,4 @@
-make
+make &&
 mkisofs -b boot/grub/stage2_eltorito -no-emul-boot -boot-load-size 4 -boot-info-table \
    -iso-level 3 -r -J \
    -publisher "FreeOS" \

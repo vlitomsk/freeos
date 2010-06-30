@@ -1,4 +1,5 @@
 #include<main.h>
+#include <stdlib.h>
 
 void kmain(){
 	
@@ -16,6 +17,7 @@ void kmain(){
 	
 	init_video();
 	puts("hello world gdt idt isr irq timer keyboard  [OK]\n");
+	malloc(666);
 	
 // раскоментить для проверки на рабочесть прерываний	
 //	int i;
