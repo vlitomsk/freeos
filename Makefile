@@ -1,4 +1,4 @@
-BIN=bin/rom/root/
+BIN=bin/cdrom/root/
 SRC=src/
 LIB=lib/
 
