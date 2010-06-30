@@ -7,7 +7,7 @@
 
 #define malloc(x) __kmalloc(x)
 #define calloc(x) __kcalloc(x)
-#define free(x) __kcalloc(x)
+#define free(x) __kfree(x)
 #define realloc(x) __krealloc(x)
 
 #endif
