@@ -42,12 +42,14 @@ clean:
 mmanager:
 	$(CC) $(LIB)mman.o $(SRC)memory_manager.c
 libc:
-#	$(CC) $(LIB)math.o $(SRC)libc/math.c
 	$(CC) $(LIB)stdlib.o $(SRC)libc/stdlib.c
+dma:
+	$(CC) $(LIB)dma.o $(SRC)dma.c
+
 clean:
 	rm $(LIB)*.o -f
 	rm $(LIB)libc/*.o -f
 
-link: clean start main utils screen gdt idt isr irq timer keys mmanager libc
+link: clean start main utils screen gdt idt isr irq timer keys mmanager libc dma
 	$(LD) $(BIN)kernel.bin $(LIB)*.o
 	
