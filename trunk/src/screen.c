@@ -1,4 +1,5 @@
 #include <screen.h>
+#include <stdlib.h>
 unsigned short *textmemptr;
 int attrib = 0x0F;
 int csr_x = 0, csr_y = 0;
@@ -98,4 +99,38 @@ void init_video(void)
     textmemptr = (unsigned short *)0xB8000;
     cls();
 }
-	
+
+void put_int(int a) {
+        if (a == 0)  {
+		puts("0\0");
+		return;
+	}
+                
+        char mystr[100];
+//char* mystr = (char*)malloc(sizeof(char) * 100);
+        int pos = 0;
+        if (a < 0) {
+                mystr[pos++] = '-';
+                a = -a;
+        }
+                                                                                        
+        int st[100];
+//int* st = (int*)malloc(sizeof(int) * 100);
+        int stacklen = 0;
+        for (;a != 0;) {
+                int tmp = 0;
+                tmp = a % 10;
+                a -= tmp;
+                a /= 10;
+                                                                                                                                        
+                st[stacklen++] = tmp;        
+        }
+                                                                                                                                                                                                                                                                        
+        for (a = stacklen-1; a >= 0; a--) 
+                        mystr[pos++] = (char)(st[a]+48); 
+
+                                                                                                                                                                                                                                                                                                        
+        mystr[pos] = '\0';
+
+        puts(mystr);
+}

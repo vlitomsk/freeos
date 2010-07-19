@@ -2,7 +2,7 @@ BIN=bin/cdrom/root/
 SRC=src/
 LIB=lib/
 
-CFLAGS	= -m32 -O -fstrength-reduce -fomit-frame-pointer -finline-functions -nostdinc -fno-builtin -c -I./header/ -I./header/libc
+CFLAGS	= -m32 -O -fstrength-reduce -fomit-frame-pointer -finline-functions -nostdinc -fno-builtin -fno-stack-protector -c -I./header/ -I./header/libc 
 LFLAGS	= -m elf_i386 -T linker.ld
 
 CC		= gcc $(CFLAGS) -o
@@ -37,18 +37,20 @@ timer:
 	$(CC) $(LIB)timer.o			$(SRC)timer.c
 keys:
 	$(CC) $(LIB)keyboard.o	$(SRC)keyboard.c
-clean:
-	rm $(LIB)*.o &
 mmanager:
 	$(CC) $(LIB)mman.o $(SRC)memory_manager.c
 dma:
 	$(CC) $(LIB)dma.o $(SRC)dma.c
+#pci:
+#	$(CC) $(LIB)pci.o $(SRC)pci.c
+#ata:
+#	$(CC) $(LIB)ata.o $(SRC)ata.c
 libc:
 	$(CC) $(LIB)stdlib.o $(SRC)libc/stdlib.c
 clean:
 	rm $(LIB)*.o -f
 	rm $(LIB)libc/*.o -f
 
-link: clean start main utils screen gdt idt isr irq timer keys mmanager libc 
+link: clean start main utils screen gdt idt isr irq timer keys mmanager libc dma
 	$(LD) $(BIN)kernel.bin $(LIB)*.o
 	

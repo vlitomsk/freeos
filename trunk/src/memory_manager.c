@@ -1,4 +1,5 @@
 #include <memory_manager.h>
+#include <screen.h>
 
 typedef unsigned char u8;
 typedef unsigned int u32;
@@ -14,6 +15,19 @@ void clean_heap(void) {
         *ptr = 0;
 }
 
+/*void print_debug() {
+	int i;
+	for (i = 0; i < heap_part_count; ++i) {
+		puts("addr: "); put_int(heap_parts[i].addr); puts("\n");
+		puts("&addr: "); put_int((u32)(&heap_parts[i])); puts("\n");
+	//	puts("size: "); put_int(heap_parts[i].size); puts("\n");
+		puts("next: "); put_int(heap_parts[i].next); puts("\n");
+		puts("prev: "); put_int(heap_parts[i].prev); puts("\n");
+		puts("-----\n");
+	}
+
+}*/
+
 void reset_heap(void) {
     heap_part_count = 0;
     int i;
@@ -24,15 +38,17 @@ void reset_heap(void) {
 #define MIN_DEF HEAP_END-HEAP_START+1
 
 void* __kmalloc(unsigned int byte_count) {    
+//print_debug();
+puts("in malloc\n");
     if (heap_part_count + 1 > MAX_HEAP_PARTS) return NULL; // не хватает частей. в хидере объявлено
     if (heap_part_count == 0) { // первый раз в  первый класс!
-        first_part = heap_parts;
+        first_part = &heap_parts[0];
         if (byte_count > HEAP_END - HEAP_START)
             return NULL; // много хватили
 
         first_part->used = 1;
-        first_part->addr = HEAP_START;
-	first_part->size = byte_count;
+        first_part->addr = (void*)HEAP_START;
+        first_part->size = byte_count;
         first_part->osob = OSOB_START;
         first_part->next = NULL;
         first_part->prev = NULL;
@@ -54,7 +70,7 @@ void* __kmalloc(unsigned int byte_count) {
         prom_sz2 = MIN_DEF;       
         
         if (ptr->osob == OSOB_START) {// блок первый
-            prom_sz = (((ptr->next)->addr)) - ((u32)ptr->addr + ptr->size);
+            prom_sz = (((u32)(ptr->next)->addr)) - ((u32)ptr->addr + ptr->size);
             if (ptr->next == NULL) {
                 prom_sz = HEAP_END - ((u32)ptr->addr + ptr->size);
             }            
@@ -75,11 +91,13 @@ void* __kmalloc(unsigned int byte_count) {
         }
 
         if ((prom_sz2 < min) && (prom_sz2 + REALLOC_ADDITION >= byte_count) && (prom_sz2 > 0)) { // prom_sz2 != 0
+			puts("here");
             flag = 1;
             min = prom_sz2;
             minaddr = ptr;
         }
-      
+      	put_int((ptr->osob)); puts(":: "); put_int(prom_sz); puts(" - "); put_int(prom_sz2);
+		puts("\n");
         if (ptr->next == NULL) break;
 
         ptr = ptr->next;
@@ -96,7 +114,7 @@ void* __kmalloc(unsigned int byte_count) {
             temp = &heap_parts[i];
             break;
         }    
-
+//put_int(flag);puts("\n");
     temp->used = 1;
     if (flag == 0) {
         temp->addr = minaddr->addr + minaddr->size + REALLOC_ADDITION + 1;
@@ -111,7 +129,7 @@ void* __kmalloc(unsigned int byte_count) {
         
         heap_part_count++;
     } else if (flag == 1) {
-        temp->addr = HEAP_START;
+        temp->addr = (void*)HEAP_START;
         temp->next = minaddr;
         minaddr->prev = temp;
         temp->prev = NULL;
@@ -193,10 +211,3 @@ void* __krealloc(void* ptr, unsigned int byte_count) {
     return NULL;
 }
 
-/*
- * Я смотрю в окно
- * За окном темно
- * В желудке плавает чай
- * В поле растет молочай
- * С Новым Годом вас, дорогие товарищи!
- */
