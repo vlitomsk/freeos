@@ -1,26 +1,31 @@
 #include<main.h>
 #include <stdlib.h>
+#include <screen.h>
+#include <memory_manager.h>
+//#include <ata.h>
+//#include <pci.h>
 
-void kmain(){
+void kmain() {
 	
-  gdt_install();
-  idt_install();
+	gdt_install();
+  	idt_install();
 	isrs_install();
 	irq_install();	
 	
-// раскоментить для проверки таймера	
-//	timer_install();
+    // раскоментить для проверки таймера	
+	//timer_install();
 
-  keyboard_install();
-  
-  __asm__ __volatile__ ("sti");
+	keyboard_install();  
+	__asm__ __volatile__ ("sti");
 	
 	init_video();
 	puts("hello world gdt idt isr irq timer keyboard  [OK]\n");
-	malloc(666);
 	
-// раскоментить для проверки на рабочесть прерываний	
-//	int i;
-//	i= 10/0;
-//	puts(i);
+	//раскоментить для проверки на рабочесть прерываний	
+	//int i;
+	//i= 10/0;
+	//puts(i);
+
+//	init_device();
+//	put_int(atadev.base_addr); puts("\n"); 
 }

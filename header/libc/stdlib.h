@@ -6,6 +6,9 @@ typedef unsigned short u16;
 typedef unsigned int u32;
 typedef unsigned long long u64;
 
+enum bool {false, true};
+//typedef bool_enum bool;
+
 #define LOW_BYTE(x) (x & 0xFF)
 #define HIGH_BYTE(x) ((x & 0xFF00) >> 8)
 
