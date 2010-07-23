@@ -13,7 +13,7 @@ LD		= ld  $(LFLAGS) -o
 all: link
 
 start:
-	$(CC) $(LIB)multiboot.o $(SRC)multiboot.S
+	$(NA) $(LIB)multiboot.o $(SRC)multiboot.S
 
 main:
 	$(CC) $(LIB)main.o			$(SRC)main.c

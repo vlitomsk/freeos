@@ -25,7 +25,8 @@ void kmain() {
 	//int i;
 	//i= 10/0;
 	//puts(i);
-
+  while(1){
+  }
 //	init_device();
 //	put_int(atadev.base_addr); puts("\n"); 
 }
