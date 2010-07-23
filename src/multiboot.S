@@ -1,36 +1,36 @@
-     #define ASM     1
-		 #include<multiboot.h>
-             .text
-             .globl  start, _start
-     start:
-     _start:
-             jmp     multiboot_entry
-             .align  4
-     multiboot_header:
-             .long   MULTIBOOT_HEADER_MAGIC
-             .long   MULTIBOOT_HEADER_FLAGS
-             .long   -(MULTIBOOT_HEADER_MAGIC + MULTIBOOT_HEADER_FLAGS)
-     #ifndef __ELF__
-             .long   multiboot_header
-             .long   _start
-             .long   _edata
-             .long   _end
-             .long   multiboot_entry
-     #endif
-     multiboot_entry:
-             movl    $(stack + STACK_SIZE), %esp
-			       pushl   $0
-             popf
-             pushl   %ebx
-             pushl   %eax
-    
-             call    EXT_C(kmain)
-     
-             pushl   $halt_message
-     
-     loop:   hlt
-             jmp     loop
-     
-     halt_message:
-             .asciz  "Halted."
-             .comm   stack, STACK_SIZE
+global loader           ; making entry point visible to linker
+extern kmain            ; kmain is defined elsewhere
+ 
+; setting up the Multiboot header - see GRUB docs for details
+MODULEALIGN equ  1<<0                   ; align loaded modules on page boundaries
+MEMINFO     equ  1<<1                   ; provide memory map
+FLAGS       equ  MODULEALIGN | MEMINFO  ; this is the Multiboot 'flag' field
+MAGIC       equ    0x1BADB002           ; 'magic number' lets bootloader find the header
+CHECKSUM    equ -(MAGIC + FLAGS)        ; checksum required
+ 
+section .text
+align 4
+MultiBootHeader:
+   dd MAGIC
+   dd FLAGS
+   dd CHECKSUM
+ 
+; reserve initial kernel stack space
+STACKSIZE equ 0x4000                  ; that's 16k.
+ 
+loader:
+   mov esp, stack+STACKSIZE           ; set up the stack
+   push eax                           ; pass Multiboot magic number
+   push ebx                           ; pass Multiboot info structure
+ 
+   call  kmain                       ; call kernel proper
+ 
+   cli
+hang:
+   hlt                                ; halt machine should kernel return
+   jmp   hang
+ 
+section .bss
+align 4
+stack:
+   resb STACKSIZE                     ; reserve 16k stack on a doubleword boundar
