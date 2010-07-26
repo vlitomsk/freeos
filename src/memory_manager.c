@@ -1,5 +1,4 @@
 #include <memory_manager.h>
-#include <screen.h>
 
 typedef unsigned char u8;
 typedef unsigned int u32;
@@ -38,8 +37,6 @@ void reset_heap(void) {
 #define MIN_DEF HEAP_END-HEAP_START+1
 
 void* __kmalloc(unsigned int byte_count) {    
-//print_debug();
-puts("in malloc\n");
     if (heap_part_count + 1 > MAX_HEAP_PARTS) return NULL; // не хватает частей. в хидере объявлено
     if (heap_part_count == 0) { // первый раз в  первый класс!
         first_part = &heap_parts[0];
@@ -91,13 +88,10 @@ puts("in malloc\n");
         }
 
         if ((prom_sz2 < min) && (prom_sz2 + REALLOC_ADDITION >= byte_count) && (prom_sz2 > 0)) { // prom_sz2 != 0
-			puts("here");
             flag = 1;
             min = prom_sz2;
             minaddr = ptr;
         }
-      	put_int((ptr->osob)); puts(":: "); put_int(prom_sz); puts(" - "); put_int(prom_sz2);
-		puts("\n");
         if (ptr->next == NULL) break;
 
         ptr = ptr->next;
@@ -114,7 +108,6 @@ puts("in malloc\n");
             temp = &heap_parts[i];
             break;
         }    
-//put_int(flag);puts("\n");
     temp->used = 1;
     if (flag == 0) {
         temp->addr = minaddr->addr + minaddr->size + REALLOC_ADDITION + 1;
