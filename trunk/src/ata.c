@@ -66,20 +66,25 @@ int wait_drq() {
 	return wait_bit(base1 + 7, ATA_BIT_DRQ, 1);
 }
 
+int check_error() {
+	return inportb(base1 + 7) & (1 << ATA_BIT_ERR);
+}
+
 #define ATA_CMD_READ 0x20
 #define ATA_CMD_WRITE 0x30
 
 #define AM_LBA 0x40
 
-int ata_rwsect_action(int device, int cmd, int lba, u8 count, u8* buffer) {
+int ata_rwsect_action(int device, int cmd, int lba, u8* buffer) {
 	if ((cmd != ATA_CMD_READ) && (cmd != ATA_CMD_WRITE)) return 1;
 	if ((device != DEVICE_MASTER) && (device != DEVICE_SLAVE)) return 1;
-	ata_cli();
-	if (!wait_bsy()) { ata_sti(); return 1; }	
-	u8 tmp = 0xA0 | AM_LBA | device | ((lba & 0xF000000) >> 24); // device ??? ???
+	if (!wait_bsy())  return 1; 
+	u8 tmp = 0xA0 | AM_LBA | device | ((lba & 0xF000000) >> 24);
 	outportb(base1 + 6, tmp);
 
-	if (!((wait_bsy()) && (wait_drdy()))) { ata_sti(); return 1; }	
+	if (!((wait_bsy()) && (wait_drdy())))  return 1; 
+
+	outportb(base1 + 2, 1);
 
 	outportb(base1 + 3, (lba & 0xFF));
 	outportb(base1 + 4, ((lba & 0xFF00) >> 8));
@@ -87,18 +92,24 @@ int ata_rwsect_action(int device, int cmd, int lba, u8 count, u8* buffer) {
 
 	outportb(base1 + 7, cmd);
 	
-	if (!wait_drq()) { ata_sti(); return 1; }
-	puts("line 91\n");
+	if (!wait_bsy()) return 1;
+	if (check_error()) return 1;
+	if (!wait_drq()) return 1;
 
 	int i;
-	for (i = 0; i < count; ++i) {
-		if (cmd == ATA_CMD_READ) 		
-			buffer[i] = inportb(base1);
-		if (cmd == ATA_CMD_WRITE) 
-			outportb(base1, buffer[i]);
+	for (i = 0; i < 256; i++) {
+		if (cmd == ATA_CMD_READ) {		
+			u16 temp = inportw(base1);
+			buffer[i * 2 + 1] = (u8)((temp & 0xFF));
+			buffer[i * 2] = (u8)((temp & 0xFF00) >> 8);
+//			put_int(buffer[i * 2]); puts(" ");put_int(buffer[i * 2 + 1]);puts(" ");
+//			put_int(temp); puts(" ");
+		}
+		if (cmd == ATA_CMD_WRITE) { 
+			outportw(base1, ((u16)(buffer[i * 2]) << 8) | ((u16)(buffer[i * 2 + 1])));
+//			put_int(((u16)(buffer[i * 2]) << 8) | ((u16)(buffer[i * 2 + 1]))); puts(" ");
+		}
 	}
-
-	ata_sti();
 
 	return 0;
 }
@@ -113,23 +124,37 @@ int ata_rw_action(int device, int cmd, struct ata_rw_info* rw_info) {
 	int ost = rw_info->count % SECTOR_BYTES_COUNT;
 
 	if (cmd == ATA_CMD_READ) 
-		rw_info->buff = (u8*)malloc(sizeof(u8) * rw_info->count);
+		rw_info->buff = (u8*)malloc(sizeof(u8) * rw_info->count);	
 
 	int i;
 	for (i = 0; i < sectors; ++i) {
 		int current_offset = i << SECTOR_MULDIV;
-		if (ata_rwsect_action(device, cmd, rw_info->lba + current_offset, 0, rw_info->buff + current_offset)) {
+		if (ata_rwsect_action(device, cmd, rw_info->lba + current_offset, rw_info->buff + current_offset)) {
 			if (cmd == ATA_CMD_READ) 
 				free(rw_info->buff); 
 			return 1;
 		}
-	}
-	if (ost != 0) { // просто там такая фича, что кол-во данных 0 воспринимается как 256 :))
-		if (ata_rwsect_action(device, cmd, rw_info->lba + (sectors << SECTOR_MULDIV), ost, rw_info->buff + (sectors << SECTOR_MULDIV))) {
+	}	
+
+	if (ost != 0) { 
+		u8* tmp_buf;
+
+		tmp_buf = (u8*)malloc(sizeof(u8) * SECTOR_BYTES_COUNT);
+
+		if (cmd == ATA_CMD_WRITE) 
+			memcpy(tmp_buf, rw_info->buff + (sectors << SECTOR_MULDIV), ost);
+		
+		if (ata_rwsect_action(device, cmd, rw_info->lba + (sectors << SECTOR_MULDIV), tmp_buf)) {
 			if (cmd == ATA_CMD_READ) 
-				free(rw_info->buff);
+				free(rw_info->buff);							
+			free(tmp_buf);
+
 			return 1;
 		}
+		if (cmd == ATA_CMD_READ) 
+			memcpy(rw_info->buff + (sectors << SECTOR_MULDIV), tmp_buf, ost);
+		
+		free(tmp_buf);
 	}
 
 	return 0;

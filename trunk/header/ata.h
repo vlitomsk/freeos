@@ -12,6 +12,7 @@ extern void set_timeout(int t);
 
 struct ata_rw_info {
 	u32 lba;
+	u32 lba2; // для 48-битного PIO
 	u32 count;
 	u8* buff; // не надо ничего выделять.
 };
