@@ -1,86 +1,145 @@
 #include <ata.h>
-#include <pci.h>
-#include <timer.h>
+#include <stdlib.h>
+#include <utils.h>
+#include <screen.h>
 
-int ata_initialized = 0;
+#define ATA_BIT_BSY 7
+#define ATA_BIT_DRDY 6
+#define ATA_BIT_DF 5
+#define ATA_BIT_DSC 4
+#define ATA_BIT_DRQ 3
+#define ATA_BIT_CORR 2
+#define ATA_BIT_IDX 1
+#define ATA_BIT_ERR 0
 
-int init_device(void) {
-	if (pci_init_device(0, 0, 0, PCIIDE_CLASSCODE, &atadev) == 0)
-		ata_initialized = 1;
-	else
-		ata_initialized = 0;
+#define BASE1_CH0 0x1F0
+#define BASE1_CH1 0x170
+#define BASE2_CH0 0x3F6
+#define BASE2_CH1 0x376
 
-	return ata_initialized;
+int base1 = BASE1_CH0, base2 = BASE2_CH0;
+
+int ata_timeout = 1000;
+
+void set_timeout(int t) {
+	ata_timeout = t;
 }
 
+void set_channel(int ch) {
+	if (~ch) {
+		base1 = BASE1_CH0;
+		base2 = BASE2_CH0;
+		return;
+	}	
 
-int wait_bsy(int baseaddr, int timeout, int tries) {
-	if (!ata_initialized) return 1;
+	base1 = BASE1_CH1;
+	base2 = BASE2_CH1;	
+}
+
+#define ata_cli() outportb(base2, 2)
+#define ata_sti() outportb(base2, 0)
+
+int wait_bit(int port, int bit_n, int onoff) {
 	int i;
-	for (i = 0; i < tries; ++i) {
-		u8 statereg = inportb(baseaddr + PCIIDE_STATE_REG);
-		if ((statereg & BIT_BSY) == 0) return 0;
-		timer_wait(timeout);
+	int tmpmask = 1 << bit_n;
+	for (i = 0; i < ata_timeout; ++i) {
+		u8 tmp = inportb(port);
+		if (onoff) {
+			if ((tmp & tmpmask) >> bit_n) return 1;
+		} else {
+			if ((~(tmp & tmpmask)) >> bit_n) return 1;
+		}
 	}
-	return 1;
-}
-
-// немного быдлокода :)
-int wait_drdy(int baseaddr, int timeout, int tries) {
-	if (!ata_initialized) return 1;
-	int i;
-	for (i = 0; i < tries; ++i) {
-		u8 statereg = inportb(baseaddr + PCIIDE_STATE_REG);
-		if (statereg & BIT_DRDY) return 0;
-		timer_wait(timeout);
-	}
-	return 1;
-}
-
-int wait_drq(int baseaddr, int timeout, int tries) {
-	if (!ata_initialized) return 1;
-	while (true) {
-		u8 statereg = inportb(baseaddr + PCIIDE_STATE_REG);
-		if (statereg & BIT_DRQ) return 0;
-	}
-
-	return 1; // недостижимо, но все же :-)
-}
-
-u32 mk_params(u8 device, u32 lba) {
-	return 0 | ((lba & (~0xF0000000)) | ((device & 0x1) << 28));
-}
-
-int config_dma_rw(struct prd* prdt, u32 params, int baseaddr, int sectors_num, int operation, int direction) {	
-	if (!ata_initialized) return 1;
-	if ((operation != ATA_READ) || (operation != ATA_WRITE)) return 1;
-	direction &= 0x8;
-	ata_cli(baseaddr);
-	if (wait_bsy(baseaddr, 18, 30)) { ata_sti(); return 1; } // опять же мэджик намберс из-за этих самых меджик намберс в src/timer.c
-	outportb(baseaddr + 6, (params >> 24) | 0x0E0); // ??
-	if (wait_bsy(baseaddr, 18, 30) || (wait_drdy(baseaddr, 18, 30))) { ata_sti(); return 1; } // 
-
-	int i;
-	for (i = 0; i < 3; ++i) 
-		outportb(baseaddr + i + 3, (params >> (i << 3)) & 0xFF); 
-
-	outportb(baseaddr + 2, sectors_num & 0xFF);
-	u32 pcibase = atadev.base_addr; // ????? то или не то ??
-	outportb(pcibase + 4, (u32)prdt);
-	outportb(pcibase, direction);
-	outportb(baseaddr + 7, operation);
-	outportb(pcibase, 9); // вжжж
-	while (inportb(pcibase + 2) & 0x1) {}
-	outportb(pcibase, 0); // шшшш
-	ata_sti(baseaddr);
 
 	return 0;
 }
 
-int config_dma_read(struct prd* prdt, u32 params, int baseaddr, int sectors_num) {
-	return config_dma_rw(prdt, params, baseaddr, sectors_num, ATA_READ, DIR_TO_RAM);
+int wait_bsy() {
+	return wait_bit(base1 + 7, ATA_BIT_BSY, 0);
 }
 
-int config_dma_write(struct prd* prdt, u32 params, int baseaddr, int sectors_num) {
-	return config_dma_rw(prdt, params, baseaddr, sectors_num, ATA_WRITE, DIR_FROM_RAM);
+int wait_drdy() {
+	return wait_bit(base1 + 7, ATA_BIT_DRDY, 1);
 }
+
+int wait_drq() {
+	return wait_bit(base1 + 7, ATA_BIT_DRQ, 1);
+}
+
+#define ATA_CMD_READ 0x20
+#define ATA_CMD_WRITE 0x30
+
+#define AM_LBA 0x40
+
+int ata_rwsect_action(int device, int cmd, int lba, u8 count, u8* buffer) {
+	if ((cmd != ATA_CMD_READ) && (cmd != ATA_CMD_WRITE)) return 1;
+	if ((device != DEVICE_MASTER) && (device != DEVICE_SLAVE)) return 1;
+	ata_cli();
+	if (!wait_bsy()) { ata_sti(); return 1; }	
+	u8 tmp = 0xA0 | AM_LBA | device | ((lba & 0xF000000) >> 24); // device ??? ???
+	outportb(base1 + 6, tmp);
+
+	if (!((wait_bsy()) && (wait_drdy()))) { ata_sti(); return 1; }	
+
+	outportb(base1 + 3, (lba & 0xFF));
+	outportb(base1 + 4, ((lba & 0xFF00) >> 8));
+	outportb(base1 + 5, ((lba & 0xFF0000) >> 16));
+
+	outportb(base1 + 7, cmd);
+	
+	if (!wait_drq()) { ata_sti(); return 1; }
+	puts("line 91\n");
+
+	int i;
+	for (i = 0; i < count; ++i) {
+		if (cmd == ATA_CMD_READ) 		
+			buffer[i] = inportb(base1);
+		if (cmd == ATA_CMD_WRITE) 
+			outportb(base1, buffer[i]);
+	}
+
+	ata_sti();
+
+	return 0;
+}
+
+#define SECTOR_BYTES_COUNT 512
+#define SECTOR_MULDIV 9 /* 2^8 */
+
+int ata_rw_action(int device, int cmd, struct ata_rw_info* rw_info) {
+	if ((cmd != ATA_CMD_READ) && (cmd != ATA_CMD_WRITE)) return 1;
+
+	int sectors = rw_info->count / SECTOR_BYTES_COUNT;
+	int ost = rw_info->count % SECTOR_BYTES_COUNT;
+
+	if (cmd == ATA_CMD_READ) 
+		rw_info->buff = (u8*)malloc(sizeof(u8) * rw_info->count);
+
+	int i;
+	for (i = 0; i < sectors; ++i) {
+		int current_offset = i << SECTOR_MULDIV;
+		if (ata_rwsect_action(device, cmd, rw_info->lba + current_offset, 0, rw_info->buff + current_offset)) {
+			if (cmd == ATA_CMD_READ) 
+				free(rw_info->buff); 
+			return 1;
+		}
+	}
+	if (ost != 0) { // просто там такая фича, что кол-во данных 0 воспринимается как 256 :))
+		if (ata_rwsect_action(device, cmd, rw_info->lba + (sectors << SECTOR_MULDIV), ost, rw_info->buff + (sectors << SECTOR_MULDIV))) {
+			if (cmd == ATA_CMD_READ) 
+				free(rw_info->buff);
+			return 1;
+		}
+	}
+
+	return 0;
+}
+
+int ata_read(int device, struct ata_rw_info* r_info) {
+	return ata_rw_action(device, ATA_CMD_READ, r_info);
+}
+
+int ata_write(int device, struct ata_rw_info* w_info) {
+	return ata_rw_action(device, ATA_CMD_WRITE, w_info);
+}
+
