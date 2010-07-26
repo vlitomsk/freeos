@@ -1,9 +1,7 @@
-#include<main.h>
+#include <main.h>
 #include <stdlib.h>
 #include <screen.h>
-#include <memory_manager.h>
-//#include <ata.h>
-//#include <pci.h>
+#include <ata.h>
 
 void kmain() {
 	
@@ -25,8 +23,25 @@ void kmain() {
 	//int i;
 	//i= 10/0;
 	//puts(i);
-  while(1){
-  }
-//	init_device();
-//	put_int(atadev.base_addr); puts("\n"); 
+
+	set_channel(0);
+	set_timeout(1000); // даже в секундах
+
+	struct ata_rw_info test_rw_info;
+	test_rw_info.lba = 0; 
+	test_rw_info.count = 512;
+//	test_rw_info.buff = (u8*)malloc(sizeof(u8) * 512);	
+/*	int i;
+	for (i = 0; i < test_rw_info.count; ++i) {
+		test_rw_info.buff[i] = i;
+	}*/
+	int ata_retval = ata_read(DEVICE_MASTER, &test_rw_info);
+	puts("ata_read(..)'s return value: "); put_int(ata_retval); puts("\n");
+
+	if (ata_retval == 0) {
+		int i;
+		for (i = 0; i < test_rw_info.count; ++i) {
+			put_int((int)test_rw_info.buff[i]); puts(" ");
+		}
+	}
 }
