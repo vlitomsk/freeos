@@ -45,12 +45,15 @@ dma:
 #	$(CC) $(LIB)pci.o $(SRC)pci.c
 ata:
 	$(CC) $(LIB)ata.o $(SRC)ata.c
+fat32:
+	$(CC) $(LIB)fat32.o $(SRC)fat32.c
 libc:
 	$(CC) $(LIB)stdlib.o $(SRC)libc/stdlib.c
+	$(CC) $(LIB)string.o $(SRC)libc/string.c
 clean:
 	rm $(LIB)*.o -f
 	rm $(LIB)libc/*.o -f
 
-link: clean start main utils screen gdt idt isr irq timer keys mmanager libc dma ata
+link: clean start main utils screen gdt idt isr irq timer keys mmanager libc dma ata fat32 
 	$(LD) $(BIN)kernel.bin $(LIB)*.o
 	
