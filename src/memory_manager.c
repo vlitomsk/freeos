@@ -37,6 +37,7 @@ void reset_heap(void) {
 #define MIN_DEF HEAP_END-HEAP_START+1
 
 void* __kmalloc(unsigned int byte_count) {    
+	byte_count++;
     if (heap_part_count + 1 > MAX_HEAP_PARTS) return NULL; // не хватает частей. в хидере объявлено
     if (heap_part_count == 0) { // первый раз в  первый класс!
         first_part = &heap_parts[0];
