@@ -1,7 +1,0 @@
-# задержка перед загрузкой ОС
-timeout 1
-# выбранная по умолчанию ОС
-default 0
-title bootOS
-    root(cd0)
-    kernel /root/kernel.bin
