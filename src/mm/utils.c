@@ -1,4 +1,3 @@
-#include<utils.h>
 #define size_t int
 
 void *memcpy(void *dest, const void *src, size_t count)
