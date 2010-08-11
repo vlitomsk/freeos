@@ -1,6 +1,7 @@
 // Во. Сам написал :-)
-#include <dma.h>
-#include <utils.h>
+#include <device/hd/dma.h>
+#include <libc/utils.h>
+#include <libc/stdlib.h>
 
 int is_valid_channel(u8 chan) {
     if ((chan > 3)) return 1; // пока 8-битные каналы. потом будут 16-.

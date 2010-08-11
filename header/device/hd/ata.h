@@ -1,9 +1,8 @@
 #ifndef ATA_H_INCLUDED
 #define ATA_H_INCLUDED
 
-#include <stdlib.h>
-#include <utils.h>
-
+#include<libc/stdlib.h>
+#include<libc/utils.h>
 extern void set_channel(int ch);
 extern void set_timeout(int t);
 

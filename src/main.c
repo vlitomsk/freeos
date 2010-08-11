@@ -1,13 +1,11 @@
-#include <main.h>
-
-#include<screen.h>
-#include<gdt.h>
-#include<idt.h>
-#include<isr.h>
-#include<irq.h>
-#include<timer.h>
-#include<keyboard.h>
-#include<fat32.h>
+#include<device/io/screen.h>
+#include<tables/gdt.h>
+#include<tables/idt.h>
+#include<tables/isr.h>
+#include<tables/irq.h>
+#include<device/timer.h>
+#include<device/io/keyboard.h>
+#include<device/hd/fat32.h>
 
 void kmain() {
 	

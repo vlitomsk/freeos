@@ -12,7 +12,7 @@ enum bool {false, true};
 #define LOW_BYTE(x) (x & 0xFF)
 #define HIGH_BYTE(x) ((x & 0xFF00) >> 8)
 
-#include <memory_manager.h>
+#include <mm/memory_manager.h>
 
 // Леонид, думаю вы не заметите три макроса :)
 

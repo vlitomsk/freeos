@@ -1,8 +1,7 @@
 #ifndef DMA_H
 #define DMA_H
 
-#include <stdlib.h>
-
+#include<libc/stdlib.h>
 #define TRANSTYPE_WRITE 1
 #define TRANSTYPE_READ 2
 

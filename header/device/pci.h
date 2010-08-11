@@ -9,7 +9,7 @@
 #define PCI_DEV_COUNT 0x20
 #define PCI_FUN_COUNT 0x8
 
-#include <stdlib.h>
+#include <libc/stdlib.h>
 
 struct pci_device {
     u16 vendor_id;

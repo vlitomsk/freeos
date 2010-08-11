@@ -1,6 +1,6 @@
-#include<utils.h>
-#include<idt.h>
-#include<isr.h>
+#include<libc/utils.h>
+#include<tables/idt.h>
+#include<tables/isr.h>
 
 struct regs
 {

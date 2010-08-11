@@ -1,6 +1,5 @@
-#include <string.h>
-#include <utils.h>
-#include <stdlib.h>
+#include <libc/utils.h>
+#include <libc/stdlib.h>
 
 char** split(char* s, int* reslen, int* pieces_len, char sep) { // ЕЩЕ ОТЛАДИТЬ ЩЕДРО!!	
 	if (strlen(s) < 3) return NULL;

@@ -27,6 +27,6 @@ extern double tanh(double);
 
 extern double factorial(unsigned int);  // faktorial
 extern double agm(double, double, double); // arifmetichesko-geometricheskoe srednee. eps - zadannaya tochnost'
-extern double log2(float); // logarifm po osnovaniu 2
+extern double log2(float); // binary log
 
 #endif

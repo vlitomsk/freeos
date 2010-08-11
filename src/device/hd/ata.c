@@ -1,7 +1,7 @@
-#include <ata.h>
-#include <stdlib.h>
-#include <utils.h>
-#include <screen.h>
+#include <device/hd/ata.h>
+#include <libc/stdlib.h>
+#include <libc/utils.h>
+#include <device/io/screen.h>
 
 #define ATA_BIT_BSY 7
 #define ATA_BIT_DRDY 6

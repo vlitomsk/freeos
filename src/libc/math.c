@@ -1,5 +1,3 @@
-#include <libc/math.h>
-
 #define E 	2.7182818284590452
 #define PI 	3.1415926535897932
 

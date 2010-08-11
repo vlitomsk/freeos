@@ -1,5 +1,5 @@
-#include<idt.h>
-#include<isr.h>
+#include<tables/idt.h>
+#include<tables/isr.h>
 
 unsigned char kbdus[128] =
 {

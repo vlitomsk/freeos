@@ -1,6 +1,5 @@
-#include <pci.h>
-#include <stdlib.h>
-#include <utils.h>
+#include <device/pci.h>
+#include <libc/utils.h>
 
 u32 mk_confaddr(u8 bus, u8 dev, u8 func, u8 reg) {	
 	u32 result = 0;
