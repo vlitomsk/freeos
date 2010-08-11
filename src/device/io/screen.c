@@ -107,16 +107,15 @@ void put_int(int a) {
 		return;
 	}
                 
-        char mystr[100];
-//char* mystr = (char*)malloc(sizeof(char) * 100);
+				char* mystr = (char*)malloc(sizeof(char) * 100);
         int pos = 0;
         if (a < 0) {
                 mystr[pos++] = '-';
                 a = -a;
         }
                                                                                         
-        int st[100];
-//int* st = (int*)malloc(sizeof(int) * 100);
+//        int st[100];
+				int* st = (int*)malloc(sizeof(int) * 100);
         int stacklen = 0;
         for (;a != 0;) {
                 int tmp = 0;
