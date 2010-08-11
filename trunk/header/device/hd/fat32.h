@@ -1,7 +1,7 @@
 #ifndef FAT32_H_INCLUDED
 #define FAT32_H_INCLUDED
 
-#include <stdlib.h>
+#include <libc/stdlib.h>
 
 #define FAT32_NAME_SEPARATOR '/'
 

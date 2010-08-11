@@ -1,9 +1,6 @@
 #ifndef SCREEN_H
 #define SCREEN_H
 
-#include<utils.h>
-#include <stdlib.h>
-
 extern void cls();
 extern void putch(unsigned char c);
 extern void puts(unsigned char *str);

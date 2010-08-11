@@ -1,8 +1,8 @@
-#include <fat32.h>
-#include <stdlib.h>
-#include <utils.h>
-#include <ata.h>
-#include <string.h>
+#include <device/hd/fat32.h>
+#include <libc/stdlib.h>
+#include <libc/utils.h>
+#include <device/hd/ata.h>
+#include <libc/string.h>
 
 struct fat32_header mk_fat32_header(u8 sect_per_clus, u8 media, u32 tot_sect32, u32 fat_sz32, u8 drv_num, u32 vol_id, u8* vol_lab) {
 	struct fat32_header r;
