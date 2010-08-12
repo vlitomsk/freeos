@@ -1,8 +1,7 @@
 #include <mm/memory_manager.h>
+#include <stdlib.h>
 
-typedef unsigned char u8;
-typedef unsigned int u32;
-typedef unsigned long long u64;
+#define ALIGNMENT (sizeof(unsigned long long))
 
 struct __heap_part* first_part;
 struct __heap_part heap_parts[MAX_HEAP_PARTS];
@@ -34,6 +33,14 @@ void reset_heap(void) {
     first_part = heap_parts;
 }
 
+u32 get_aligned_start(u32 address) {
+	return (address / ALIGNMENT) * ALIGNMENT;
+}
+
+u32 get_aligned_end(u32 address, u32 size) {
+	return (((address + size) / ALIGNMENT) * ALIGNMENT + ALIGNMENT);
+}
+
 #define MIN_DEF HEAP_END-HEAP_START+1
 
 void* __kmalloc(unsigned int byte_count) {    
@@ -45,8 +52,9 @@ void* __kmalloc(unsigned int byte_count) {
             return NULL; // много хватили
 
         first_part->used = 1;
-        first_part->addr = (void*)HEAP_START;
-        first_part->size = byte_count;
+        first_part->addr = (void*)get_aligned_start(HEAP_START);
+		first_part->size = byte_count;
+		first_part->end = (void*)get_aligned_end(first_part->addr, first_part->size);
         first_part->osob = OSOB_START;
         first_part->next = NULL;
         first_part->prev = NULL;
@@ -68,19 +76,19 @@ void* __kmalloc(unsigned int byte_count) {
         prom_sz2 = MIN_DEF;       
         
         if (ptr->osob == OSOB_START) {// блок первый
-            prom_sz = (((u32)(ptr->next)->addr)) - ((u32)ptr->addr + ptr->size);
+            prom_sz = (((u32)(ptr->next)->addr)) - ((u32)ptr->end);
             if (ptr->next == NULL) {
-                prom_sz = HEAP_END - ((u32)ptr->addr + ptr->size);
+                prom_sz = HEAP_END - ((u32)ptr->end);
             }            
             prom_sz2 = (u32)ptr->addr - HEAP_START;
             flag = 1;
         }
         
         if (ptr->osob == 0)
-            prom_sz = (ptr->next)->addr - (ptr->addr + ptr->size);
+            prom_sz = (ptr->next)->addr - ((u32)ptr->end);
 
         if (ptr->next == NULL) // блок последний
-            prom_sz = HEAP_END - ((u32)ptr->addr + ptr->size);
+            prom_sz = HEAP_END - ((u32)ptr->end);
 
         if ((prom_sz < min) && (prom_sz + REALLOC_ADDITION >= byte_count)) {
             flag = 0;
@@ -111,7 +119,7 @@ void* __kmalloc(unsigned int byte_count) {
         }    
     temp->used = 1;
     if (flag == 0) {
-        temp->addr = minaddr->addr + minaddr->size + REALLOC_ADDITION + 1;
+        temp->addr = (void*)(minaddr->end + REALLOC_ADDITION);
         temp->next = minaddr->next;
         minaddr->next = temp;
         /*put_str("as:");
@@ -119,17 +127,18 @@ void* __kmalloc(unsigned int byte_count) {
         put_str("\n");*/
         temp->prev = minaddr;
         temp->size = byte_count;
+		temp->end = (void*)get_aligned_end(temp->addr, temp->size);
         temp->osob = 0;
         
         heap_part_count++;
     } else if (flag == 1) {
-        temp->addr = (void*)HEAP_START;
+        temp->addr = (void*)get_aligned_start(HEAP_START);
         temp->next = minaddr;
         minaddr->prev = temp;
         temp->prev = NULL;
         temp->size = byte_count;
+		temp->end = (void*)get_aligned_end(temp->addr, temp->size);
         temp->osob= OSOB_START;
-
         minaddr->osob = 0;
 
         heap_part_count++;

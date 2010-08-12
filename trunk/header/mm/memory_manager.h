@@ -15,6 +15,7 @@
 struct __heap_part {
     char used;
 	void* addr;
+	void* end;
 	unsigned int size;
 	unsigned char osob;
 	struct __heap_part* next;
