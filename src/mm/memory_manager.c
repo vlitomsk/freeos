@@ -1,5 +1,5 @@
 #include <mm/memory_manager.h>
-#include <stdlib.h>
+#include <libc/stdlib.h>
 
 #define ALIGNMENT (sizeof(unsigned long long))
 
