@@ -14,14 +14,14 @@ void kmain() {
 	isrs_install();
 	irq_install();	
 	
-	timer_install();
+//	timer_install();
 
 	keyboard_install();  
 	__asm__ __volatile__ ("sti");
 	
 	init_video();
  	puts("hello world gdt idt isr irq timer keyboard  [OK]\n");
-	
-/*	while(1==1){
-	}*/
+	puts(read());
+	while(1==1){
+	}
 }
