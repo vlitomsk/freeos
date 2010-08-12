@@ -40,6 +40,9 @@ unsigned char kbdus[128] =
     0,	/* F12 Key */
     0,	/* All other keys are undefined */
 };
+unsigned char buf[256];
+int count=0;
+int q=0;
 
 void keyboard_handler(struct regs *r)
 {
@@ -49,10 +52,26 @@ void keyboard_handler(struct regs *r)
     {
     }
     else
-    {
-        putch(kbdus[scancode]);
+    {		
+				if(scancode == 28){
+					q=1;
+				}
+				if(count != 256){
+					buf[count] = kbdus[scancode];
+					putch(kbdus[scancode]);
+					count++;
+				}
     }
 }
+
+char read()
+{
+	q=0;
+	count=0;
+ 	while(q == 0) {puts("");}
+	return buf;
+}
+
 void keyboard_install()
 {
     irq_install_handler(1, keyboard_handler);
