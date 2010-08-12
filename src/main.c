@@ -21,7 +21,10 @@ void kmain() {
 	
 	init_video();
  	puts("hello world gdt idt isr irq timer keyboard  [OK]\n");
-	puts(read());
+
+	char *buffer=malloc(sizeof(char));
+	read(buffer);
+	puts(buffer);
 	while(1==1){
 	}
 }

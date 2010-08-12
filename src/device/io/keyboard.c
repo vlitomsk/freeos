@@ -40,7 +40,7 @@ unsigned char kbdus[128] =
     0,	/* F12 Key */
     0,	/* All other keys are undefined */
 };
-unsigned char buf[256];
+char *buf;
 int count=0;
 int q=0;
 
@@ -64,12 +64,12 @@ void keyboard_handler(struct regs *r)
     }
 }
 
-char read()
+void read(char *buffer)
 {
+	buf = buffer;
 	q=0;
 	count=0;
  	while(q == 0) {puts("");}
-	return buf;
 }
 
 void keyboard_install()
