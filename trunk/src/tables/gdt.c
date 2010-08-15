@@ -33,7 +33,7 @@ void gdt_set_gate(int num, unsigned long base, unsigned long limit, unsigned cha
 void gdt_install()
 {
     gp.limit = (sizeof(struct gdt_entry) * 3) - 1;
-    gp.base = &gdt;
+    gp.base = (unsigned int)&gdt;
     gdt_set_gate(0, 0, 0, 0, 0);
     gdt_set_gate(1, 0, 0xFFFFFFFF, 0x9A, 0xCF);
     gdt_set_gate(2, 0, 0xFFFFFFFF, 0x92, 0xCF);

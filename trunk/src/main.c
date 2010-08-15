@@ -23,8 +23,10 @@ void kmain() {
  	puts("hello world gdt idt isr irq timer keyboard  [OK]\n");
 
 	char *buffer=malloc(sizeof(char));
-	read(buffer);
+	buffer = "sdddsd";
 	puts(buffer);
+	//read(buffer);
+	//puts(buffer);
 	while(1==1){
 	}
 }
