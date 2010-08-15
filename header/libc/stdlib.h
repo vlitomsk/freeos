@@ -6,16 +6,10 @@ typedef unsigned short u16;
 typedef unsigned int u32;
 typedef unsigned long long u64;
 
-#define LOW_BYTE(x) (x & 0xFF)
-#define HIGH_BYTE(x) ((x & 0xFF00) >> 8)
+extern void* malloc(unsigned int byte_count);
+extern void* calloc(unsigned int member_count, unsigned int member_size);
+extern void  free(void* addr);
 
-#include <mm/memory_manager.h>
-
-// Леонид, думаю вы не заметите три макроса :)
-
-#define malloc(x) __kmalloc(x)
-#define calloc(x) __kcalloc(x)
-#define free(x) __kfree(x)
-#define realloc(x) __krealloc(x)
+#define NULL 0
 
 #endif

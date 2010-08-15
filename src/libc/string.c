@@ -2,7 +2,7 @@
 #include <libc/stdlib.h>
 
 char** split(char* s, int* reslen, int* pieces_len, char sep) { // ЕЩЕ ОТЛАДИТЬ ЩЕДРО!!	
-	if (strlen(s) < 3) return NULL;
+	if (strlen(s) < 3) return 0;
 	*reslen = 0;
 	int start = 0;
 	int end = strlen(s);
@@ -21,7 +21,7 @@ char** split(char* s, int* reslen, int* pieces_len, char sep) { // ЕЩЕ ОТЛ
 		if (chg == 0) break;
 	}
 
-	if (start >= end) return NULL;
+	if (start >= end) return 0;
 
 	*reslen = 1;
 	int i;

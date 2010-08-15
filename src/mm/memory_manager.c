@@ -33,17 +33,17 @@ void reset_heap(void) {
     first_part = heap_parts;
 }
 
-u32 get_aligned_start(u32 address) {
+unsigned int get_aligned_start(unsigned int address) {
 	return (address / ALIGNMENT) * ALIGNMENT;
 }
 
-u32 get_aligned_end(u32 address, u32 size) {
+unsigned int get_aligned_end(unsigned int address,unsigned int size) {
 	return (((address + size) / ALIGNMENT) * ALIGNMENT + ALIGNMENT);
 }
 
 #define MIN_DEF HEAP_END-HEAP_START+1
 
-void* __kmalloc(unsigned int byte_count) {    
+void* malloc(unsigned int byte_count) {    
 	byte_count++;
     if (heap_part_count + 1 > MAX_HEAP_PARTS) return NULL; // не хватает частей. в хидере объявлено
     if (heap_part_count == 0) { // первый раз в  первый класс!
@@ -54,7 +54,7 @@ void* __kmalloc(unsigned int byte_count) {
         first_part->used = 1;
         first_part->addr = (void*)get_aligned_start(HEAP_START);
 		first_part->size = byte_count;
-		first_part->end = (void*)get_aligned_end(first_part->addr, first_part->size);
+		first_part->end = (void*)get_aligned_end((unsigned int)first_part->addr, first_part->size);
         first_part->osob = OSOB_START;
         first_part->next = NULL;
         first_part->prev = NULL;
@@ -76,19 +76,19 @@ void* __kmalloc(unsigned int byte_count) {
         prom_sz2 = MIN_DEF;       
         
         if (ptr->osob == OSOB_START) {// блок первый
-            prom_sz = (((u32)(ptr->next)->addr)) - ((u32)ptr->end);
+            prom_sz = (((unsigned int)(ptr->next)->addr)) - ((unsigned int)ptr->end);
             if (ptr->next == NULL) {
-                prom_sz = HEAP_END - ((u32)ptr->end);
+                prom_sz = HEAP_END - ((unsigned int)ptr->end);
             }            
-            prom_sz2 = (u32)ptr->addr - HEAP_START;
+            prom_sz2 = (unsigned int)ptr->addr - HEAP_START;
             flag = 1;
         }
         
         if (ptr->osob == 0)
-            prom_sz = (ptr->next)->addr - ((u32)ptr->end);
+            prom_sz = (unsigned int)(ptr->next)->addr - (unsigned int)ptr->end;
 
         if (ptr->next == NULL) // блок последний
-            prom_sz = HEAP_END - ((u32)ptr->end);
+            prom_sz = HEAP_END - ((unsigned int)ptr->end);
 
         if ((prom_sz < min) && (prom_sz + REALLOC_ADDITION >= byte_count)) {
             flag = 0;
@@ -127,7 +127,7 @@ void* __kmalloc(unsigned int byte_count) {
         put_str("\n");*/
         temp->prev = minaddr;
         temp->size = byte_count;
-		temp->end = (void*)get_aligned_end(temp->addr, temp->size);
+		temp->end = (void*)get_aligned_end((unsigned int)temp->addr, temp->size);
         temp->osob = 0;
         
         heap_part_count++;
@@ -137,7 +137,7 @@ void* __kmalloc(unsigned int byte_count) {
         minaddr->prev = temp;
         temp->prev = NULL;
         temp->size = byte_count;
-		temp->end = (void*)get_aligned_end(temp->addr, temp->size);
+		temp->end = (void*)get_aligned_end((unsigned int)temp->addr, temp->size);
         temp->osob= OSOB_START;
         minaddr->osob = 0;
 
@@ -147,8 +147,8 @@ void* __kmalloc(unsigned int byte_count) {
     return temp->addr;
 }
 
-void* __kcalloc(unsigned int member_count, unsigned int member_size) {
-    void* addr_res = __kmalloc(member_size * member_count);
+void* calloc(unsigned int member_count, unsigned int member_size) {
+    void* addr_res = malloc(member_size * member_count);
     char* addr = (char*)addr_res;
     int i;
     for (i = 0; i < member_size * member_count; ++i)
@@ -157,7 +157,7 @@ void* __kcalloc(unsigned int member_count, unsigned int member_size) {
     return addr_res;
 }
 
-void __kfree(void* addr) {
+void free(void* addr) {
     struct __heap_part* ptr = first_part;
     char switched = 0;
     for (;;) {
